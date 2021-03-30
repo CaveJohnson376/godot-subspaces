@@ -4,6 +4,7 @@
 script/source = "extends RigidBody
 
 var horspeed = Vector2(0, 0)
+var tarspeed = 10
 var mousemotion
 var sensetivity = 0.001
 
@@ -16,12 +17,26 @@ func _physics_process(delta):
 		$Camera.rotate_y(-mousemotion.x*sensetivity)
 		$Camera.rotation.x = clamp($Camera.rotation.x - mousemotion.y*sensetivity, deg2rad(-90), deg2rad(90))
 		pass
-	
 	mousemotion = null
+	
+	var frontvector_pre = -$Camera.global_transform.basis.z
+	var frontvector = Vector2(frontvector_pre.x, frontvector_pre.z).normalized()
+	var rightvector_pre = $Camera.global_transform.basis.z.cross(Vector3(0, 1, 0)).normalized()
+	var rightvector = Vector2(rightvector_pre.x, rightvector_pre.z).normalized()
+	
+	var godirection = Vector2()
+	godirection.y += 1 if Input.is_action_pressed(\"movement_forward\") else 0
+	godirection.y -= 1 if Input.is_action_pressed(\"movement_backward\") else 0
+	godirection.x += 1 if Input.is_action_pressed(\"movement_left\") else 0
+	godirection.x -= 1 if Input.is_action_pressed(\"movement_right\") else 0
+	
+	horspeed = horspeed.linear_interpolate((rightvector * godirection.x + frontvector * godirection.y).normalized() * tarspeed, delta*2)
+	
 	pass
 
 func _integrate_forces(state):
-	
+	var prevelocity = Vector3(state.linear_velocity.x, 0, state.linear_velocity.z)
+	state.add_force((Vector3(horspeed.x, 0, horspeed.y) - prevelocity) * 2, Vector3(0, -0.05, 0))
 	pass
 
 func _input(event):
@@ -37,13 +52,12 @@ radius = 0.5
 [node name="player" type="RigidBody"]
 continuous_cd = true
 can_sleep = false
-linear_damp = 0.25
-angular_damp = 1.0
+angular_damp = 2.0
 script = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.75, 0 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.95, 0 )
 shape = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0 )
