@@ -1,14 +1,49 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends RigidBody
+
+var horspeed = Vector2(0, 0)
+var mousemotion
+var sensetivity = 0.001
+
+func _ready():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	pass
+
+func _physics_process(delta):
+	if mousemotion:
+		$Camera.rotate_y(-mousemotion.x*sensetivity)
+		$Camera.rotation.x = clamp($Camera.rotation.x - mousemotion.y*sensetivity, deg2rad(-90), deg2rad(90))
+		pass
+	
+	mousemotion = null
+	pass
+
+func _integrate_forces(state):
+	
+	pass
+
+func _input(event):
+	if event is InputEventMouseMotion:
+		mousemotion = event.relative
+	
+	pass
+"
 
 [sub_resource type="CapsuleShape" id=1]
 radius = 0.5
 
 [node name="player" type="RigidBody"]
-mode = 2
+continuous_cd = true
+can_sleep = false
+linear_damp = 0.25
+angular_damp = 1.0
+script = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.75, 0 )
 shape = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0 )

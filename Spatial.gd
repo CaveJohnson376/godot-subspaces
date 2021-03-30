@@ -7,7 +7,7 @@ var chunk_amount =  2
 var noise
 var chunks = {}
 var unready_chunks = {}
-var thread
+var thread = Thread.new()
 
 func _ready():
 	randomize()
@@ -18,7 +18,6 @@ func _ready():
 	noise.period = 80
 	noise.persistence = 0.4
 	
-	thread = Thread.new()
 	
 	if Engine.is_editor_hint():
 		chunk_amount = 1
@@ -63,7 +62,7 @@ func _process(delta):
 	reset_chunks()
 
 func update_chunks():
-	var player_translation = $Player.translation
+	var player_translation = $"../player".translation
 	
 	var p_x = int(player_translation.x) / chunk_size
 	var p_z = int(player_translation.z) / chunk_size

@@ -68,7 +68,7 @@ func _generateWorld():
 	var mesh_instance = MeshInstance.new();
 	mesh_instance.mesh = surface_tool.commit();
 	
-	mesh_instance.set_surface_material(0, load("res://sand.material"));
+	mesh_instance.set_surface_material(0, load("res://ground.tres"));
 	mesh_instance.create_trimesh_collision()
 	
 	add_child(mesh_instance);
