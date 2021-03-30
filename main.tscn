@@ -1,45 +1,9 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Ground037_2K-PNG/Ground037_2K_Color.png" type="Texture" id=1]
-[ext_resource path="res://Ground037_2K-PNG/Ground037_2K_AmbientOcclusion.png" type="Texture" id=2]
-[ext_resource path="res://Ground037_2K-PNG/Ground037_2K_Normal.png" type="Texture" id=3]
-[ext_resource path="res://Ground037_2K-PNG/Ground037_2K_Roughness.png" type="Texture" id=4]
-[ext_resource path="res://Ground037_2K-PNG/Ground037_2K_Displacement.png" type="Texture" id=5]
-[ext_resource path="res://terrain.dae" type="PackedScene" id=6]
 [ext_resource path="res://spaceship.tscn" type="PackedScene" id=7]
-
-[sub_resource type="SpatialMaterial" id=1]
-albedo_texture = ExtResource( 1 )
-metallic_specular = 0.0
-roughness_texture = ExtResource( 4 )
-normal_enabled = true
-normal_scale = 1.0
-normal_texture = ExtResource( 3 )
-ao_enabled = true
-ao_light_affect = 0.0
-ao_texture = ExtResource( 2 )
-ao_on_uv2 = false
-ao_texture_channel = 0
-depth_enabled = true
-depth_scale = 0.05
-depth_deep_parallax = false
-depth_flip_tangent = false
-depth_flip_binormal = false
-depth_texture = ExtResource( 5 )
 
 [node name="world" type="Node"]
 
-[node name="terrain" parent="." instance=ExtResource( 6 )]
-
-[node name="terrain" parent="terrain" index="0"]
-material/0 = SubResource( 1 )
-
-[node name="RigidBody" parent="terrain" instance=ExtResource( 7 )]
+[node name="spaceship" parent="." instance=ExtResource( 7 )]
 transform = Transform( 0.981178, -0.193104, 0, 0.192317, 0.977179, -0.090198, 0.0174176, 0.0885004, 0.995924, 0, 74.7341, 0 )
 mode = 1
-
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( -0.846806, 0.0664439, -0.527735, 0, 0.992167, 0.124918, 0.531901, 0.105781, -0.840174, -16.7244, 80.9442, -18.6888 )
-far = 500.0
-
-[editable path="terrain"]
