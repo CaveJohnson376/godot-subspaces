@@ -1,7 +1,7 @@
 tool
 extends Spatial
 
-const chunk_size = 256
+const chunk_size = 512
 var chunk_amount = 2
 
 var noise

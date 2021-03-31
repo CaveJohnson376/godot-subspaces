@@ -65,4 +65,6 @@ action_use={
 [rendering]
 
 threads/thread_model=2
+quality/reflections/atlas_size=512
+quality/reflections/atlas_subdiv=4
 environment/default_environment="res://default_env.tres"

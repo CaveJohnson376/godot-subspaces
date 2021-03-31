@@ -55,6 +55,7 @@ func _generateWorld():
 	for i in range(data_tool.get_vertex_count()):
 		var vertex = data_tool.get_vertex(i)
 		vertex.y = noise.get_noise_3d((vertex.x + x)/5, vertex.y, (vertex.z + z)/5) * height 
+		vertex.y += noise.get_noise_3d((vertex.x + x), vertex.y, (vertex.z + z)) * height / 10
 		data_tool.set_vertex(i, vertex)
 	
 	for i in range(array_plane.get_surface_count()):

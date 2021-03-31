@@ -8,15 +8,16 @@ script/source = "extends Spatial
 export var is_open = false
 
 func _physics_process(delta):
-	$CollisionShape.disabled = is_open
 	$doormodel.scale = $doormodel.scale.linear_interpolate(Vector3(1, 0.1, 1) if is_open else Vector3(1, 1, 1), delta * 5)
+	$doormodel2.scale = $doormodel2.scale.linear_interpolate(Vector3(1, 0.1, 1) if is_open else Vector3(1, 1, 1), delta * 5)
+	$doormodel3.scale = $doormodel3.scale.linear_interpolate(Vector3(1, 0.1, 1) if is_open else Vector3(1, 1, 1), delta * 5)
 	
 "
 
-[sub_resource type="BoxShape" id=3]
-extents = Vector3( 0.05, 1.2, 1 )
+[sub_resource type="BoxShape" id=12]
+extents = Vector3( 0.2, 1.2, 1 )
 
-[sub_resource type="ArrayMesh" id=1]
+[sub_resource type="ArrayMesh" id=11]
 resource_name = "door"
 surfaces/0 = {
 "aabb": AABB( 0, 0, -1, 0.1, 2.40001, 2.00001 ),
@@ -37,8 +38,8 @@ script = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.2, 0 )
-shape = SubResource( 3 )
+shape = SubResource( 12 )
 
 [node name="doormodel" type="MeshInstance" parent="."]
-mesh = SubResource( 1 )
+mesh = SubResource( 11 )
 material/0 = null

@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=2]
 
 [sub_resource type="PhysicsMaterial" id=3]
-friction = 0.0
+friction = 0.5
 
 [sub_resource type="GDScript" id=2]
 script/source = "extends RigidBody
@@ -13,10 +13,12 @@ var mousemotion
 var sensetivity = 0.001
 onready var campos = $TargetCamPos
 onready var cam = $globalspaceoffset/Camera
+onready var raycaster = cam.get_node(\"use_action\")
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
+	raycaster.add_exception(self)
 	pass
 
 func _physics_process(delta):
@@ -37,14 +39,34 @@ func _physics_process(delta):
 	godirection.x += 1 if Input.is_action_pressed(\"movement_left\") else 0
 	godirection.x -= 1 if Input.is_action_pressed(\"movement_right\") else 0
 	
+	var frict = physics_material_override.friction
+	frict = 0 if godirection.length() > 0 else (frict + (2 - frict) * delta / 4)
+	physics_material_override.friction = frict
+	
 	horspeed = horspeed.linear_interpolate((rightvector * godirection.x + frontvector * godirection.y).normalized() * tarspeed, delta*2)
 	
-	cam.translation = cam.translation.linear_interpolate(campos.global_transform.origin, delta)
-	cam.transform.basis = cam.transform.basis.orthonormalized().slerp(campos.global_transform.basis, delta)
+	cam.translation = cam.translation.linear_interpolate(campos.global_transform.origin, delta * 10)
+	cam.transform.basis = cam.transform.basis.orthonormalized().slerp(campos.global_transform.basis, delta * 5)
 	
 	var fov = cam.fov
-	var target_fov = 80 + (120 - 80) * (clamp(linear_velocity.length(), 0, 100)/100)
+	var target_fov = 80 + (40 * clamp(linear_velocity.length() / 100, 0, 1))
 	cam.fov = fov + (target_fov - fov) * delta * 2
+	
+	if Input.is_action_just_pressed(\"action_use\"):
+		raycaster.enabled = true
+		var got_collision = raycaster.is_colliding()
+		if got_collision:
+			var actor = raycaster.get_collider()
+			print(\"doing stuff!\", actor)
+			if actor.is_in_group(\"_ignore\"):
+				raycaster.add_exception(actor)
+			if actor.is_in_group(\"airlock_door\"):
+				print(\"o, a door\")
+				actor.is_open = not actor.is_open
+			
+		else:
+			print(\"no luck\")
+		raycaster.enabled = true
 	
 	$globalspaceoffset.global_transform = Transform()
 	pass
@@ -72,7 +94,9 @@ func _input(event):
 [sub_resource type="CapsuleShape" id=1]
 radius = 0.5
 
-[node name="player" type="RigidBody"]
+[node name="player" type="RigidBody" groups=[
+"_ignore",
+]]
 mass = 5.0
 physics_material_override = SubResource( 3 )
 gravity_scale = 0.0
@@ -102,3 +126,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0 )
 [node name="Camera" type="Camera" parent="globalspaceoffset"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0 )
 far = 1000.0
+
+[node name="use_action" type="RayCast" parent="globalspaceoffset/Camera"]
+enabled = true
+cast_to = Vector3( 0, 0, -5 )
+collision_mask = 1048575
+collide_with_areas = true
