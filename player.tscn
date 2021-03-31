@@ -1,30 +1,37 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
+
+[sub_resource type="PhysicsMaterial" id=3]
+friction = 0.0
 
 [sub_resource type="GDScript" id=2]
 script/source = "extends RigidBody
 
 var horspeed = Vector2(0, 0)
+var godirection = Vector2()
 var tarspeed = 10
 var mousemotion
 var sensetivity = 0.001
+onready var campos = $TargetCamPos
+onready var cam = $globalspaceoffset/Camera
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	
 	pass
 
 func _physics_process(delta):
 	if mousemotion:
-		$Camera.rotate_y(-mousemotion.x*sensetivity)
-		$Camera.rotation.x = clamp($Camera.rotation.x - mousemotion.y*sensetivity, deg2rad(-90), deg2rad(90))
+		campos.rotate_y(-mousemotion.x*sensetivity)
+		campos.rotation.x = clamp(campos.rotation.x - mousemotion.y*sensetivity, deg2rad(-90), deg2rad(90))
 		pass
 	mousemotion = null
 	
-	var frontvector_pre = -$Camera.global_transform.basis.z
+	var frontvector_pre = -campos.global_transform.basis.z
 	var frontvector = Vector2(frontvector_pre.x, frontvector_pre.z).normalized()
-	var rightvector_pre = $Camera.global_transform.basis.z.cross(Vector3(0, 1, 0)).normalized()
+	var rightvector_pre = campos.global_transform.basis.z.cross(Vector3(0, 1, 0)).normalized()
 	var rightvector = Vector2(rightvector_pre.x, rightvector_pre.z).normalized()
 	
-	var godirection = Vector2()
+	godirection = Vector2()
 	godirection.y += 1 if Input.is_action_pressed(\"movement_forward\") else 0
 	godirection.y -= 1 if Input.is_action_pressed(\"movement_backward\") else 0
 	godirection.x += 1 if Input.is_action_pressed(\"movement_left\") else 0
@@ -32,11 +39,27 @@ func _physics_process(delta):
 	
 	horspeed = horspeed.linear_interpolate((rightvector * godirection.x + frontvector * godirection.y).normalized() * tarspeed, delta*2)
 	
+	cam.translation = cam.translation.linear_interpolate(campos.global_transform.origin, delta)
+	cam.transform.basis = cam.transform.basis.orthonormalized().slerp(campos.global_transform.basis, delta)
+	
+	var fov = cam.fov
+	var target_fov = 80 + (120 - 80) * (clamp(linear_velocity.length(), 0, 100)/100)
+	cam.fov = fov + (target_fov - fov) * delta * 2
+	
+	$globalspaceoffset.global_transform = Transform()
 	pass
 
 func _integrate_forces(state):
 	var prevelocity = Vector3(state.linear_velocity.x, 0, state.linear_velocity.z)
-	state.add_force((Vector3(horspeed.x, 0, horspeed.y) - prevelocity) * 2, Vector3(0, -0.05, 0))
+	if $islanded.is_colliding():
+		state.add_central_force((Vector3(horspeed.x, 0, horspeed.y) - prevelocity) * 10)
+	elif godirection.length() > 0:
+		state.add_central_force(Vector3(horspeed.x, 5, horspeed.y)*15)
+	
+	state.add_force(Vector3(0, -50, 0), $gravity_center.global_transform.origin - global_transform.origin)
+	
+	if Input.is_action_pressed(\"movement_up\") and $islanded.is_colliding():
+		state.add_central_force(Vector3(0, 300, 0))
 	pass
 
 func _input(event):
@@ -50,14 +73,32 @@ func _input(event):
 radius = 0.5
 
 [node name="player" type="RigidBody"]
+mass = 5.0
+physics_material_override = SubResource( 3 )
+gravity_scale = 0.0
 continuous_cd = true
 can_sleep = false
+axis_lock_angular_y = true
 angular_damp = 2.0
 script = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.95, 0 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0 )
 shape = SubResource( 1 )
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0 )
+[node name="islanded" type="RayCast" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
+enabled = true
+cast_to = Vector3( 0, -0.5, 0 )
+
+[node name="gravity_center" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
+
+[node name="TargetCamPos" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0 )
+
+[node name="globalspaceoffset" type="Spatial" parent="."]
+
+[node name="Camera" type="Camera" parent="globalspaceoffset"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0 )
+far = 1000.0

@@ -37,13 +37,13 @@ func _heightTransformer(height):
 	else :
 		#is on land
 		return height * landSlope
-		
+
 func _generateWorld():
 	var plane_mesh = PlaneMesh.new()
 	plane_mesh.size = Vector2(chunk_size, chunk_size)
 	
-	plane_mesh.subdivide_depth = chunk_size * 0.5
-	plane_mesh.subdivide_width = chunk_size * 0.5
+	plane_mesh.subdivide_depth = chunk_size * 0.25
+	plane_mesh.subdivide_width = chunk_size * 0.25
 	
 	var surface_tool = SurfaceTool.new()
 	surface_tool.create_from(plane_mesh, 0)
@@ -54,7 +54,7 @@ func _generateWorld():
 	
 	for i in range(data_tool.get_vertex_count()):
 		var vertex = data_tool.get_vertex(i)
-		vertex.y = _heightTransformer(noise.get_noise_3d(vertex.x + x, vertex.y, vertex.z + z)) * height 
+		vertex.y = noise.get_noise_3d((vertex.x + x)/5, vertex.y, (vertex.z + z)/5) * height 
 		data_tool.set_vertex(i, vertex)
 	
 	for i in range(array_plane.get_surface_count()):

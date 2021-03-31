@@ -1,8 +1,8 @@
 tool
 extends Spatial
 
-const chunk_size = 128
-var chunk_amount =  2
+const chunk_size = 256
+var chunk_amount = 2
 
 var noise
 var chunks = {}
@@ -63,21 +63,26 @@ func _process(delta):
 
 func update_chunks():
 	var player_translation = $"../player".translation
+	var spaceship_translation = $"../spaceship_exterior".translation
 	
 	var p_x = int(player_translation.x) / chunk_size
 	var p_z = int(player_translation.z) / chunk_size
+	var s_x = int(spaceship_translation.x) / chunk_size
+	var s_z = int(spaceship_translation.z) / chunk_size
 
 	for distance in range(0, chunk_amount):
 		for x in range(-100, 100):
 			for z in range(-100, 100):
-				var curDistance = sqrt(pow(x - p_x, 2) + pow(z - p_z, 2));
+				var pcurDistance = Vector2(x - p_x, z - p_z).length()
+				var scurDistance = Vector2(x - s_x, z - s_z).length()
 				
-				if curDistance >= distance and distance + 1 > curDistance:
+				if (pcurDistance >= distance and distance + 1 > pcurDistance) or (scurDistance >= distance and distance + 1 > scurDistance):
 					add_chunk(x, z)
 					var chunk = get_chunk(x, z)
 					if chunk != null:
 						chunk.should_remove = false
-				
+
+
 func clean_up_chunks():
 	for key in chunks:
 		var chunk = chunks[key]
