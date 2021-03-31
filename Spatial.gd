@@ -18,7 +18,6 @@ func _ready():
 	noise.period = 80
 	noise.persistence = 0.4
 	
-	
 	if Engine.is_editor_hint():
 		chunk_amount = 1
 	
@@ -27,11 +26,11 @@ func add_chunk(x, z):
 	
 	if chunks.has(key) or unready_chunks.has(key):
 		return
-		
+	
 	if not thread.is_active():
 		thread.start(self, "load_chunk", [thread, x, z])
 		unready_chunks[key] = 1
-		
+
 func load_chunk(arr):
 	var thread = arr[0]
 	var x = arr[1]
@@ -81,7 +80,6 @@ func update_chunks():
 					var chunk = get_chunk(x, z)
 					if chunk != null:
 						chunk.should_remove = false
-
 
 func clean_up_chunks():
 	for key in chunks:

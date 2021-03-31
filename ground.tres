@@ -5,7 +5,7 @@
 [ext_resource path="res://Ground037_2K-PNG/Ground037_2K_AmbientOcclusion.png" type="Texture" id=3]
 [ext_resource path="res://Ground037_2K-PNG/Ground037_2K_Normal.png" type="Texture" id=5]
 
-[sub_resource type="SpatialMaterial" id=3]
+[sub_resource type="SpatialMaterial" id=1]
 flags_world_triplanar = true
 flags_ensure_correct_normals = true
 albedo_texture = ExtResource( 2 )
@@ -19,8 +19,10 @@ ao_texture = ExtResource( 3 )
 ao_on_uv2 = false
 ao_texture_channel = 0
 depth_enabled = true
-depth_scale = 0.02
-depth_deep_parallax = false
+depth_scale = 0.1
+depth_deep_parallax = true
+depth_min_layers = 8
+depth_max_layers = 32
 depth_flip_tangent = false
 depth_flip_binormal = false
 depth_texture = ExtResource( 1 )
@@ -30,8 +32,7 @@ uv2_scale = Vector3( 0.01, 0.01, 0.01 )
 uv2_triplanar = true
 
 [resource]
-next_pass = SubResource( 3 )
-flags_vertex_lighting = true
+next_pass = SubResource( 1 )
 flags_world_triplanar = true
 flags_ensure_correct_normals = true
 albedo_texture = ExtResource( 2 )
@@ -45,8 +46,10 @@ ao_texture = ExtResource( 3 )
 ao_on_uv2 = false
 ao_texture_channel = 0
 depth_enabled = true
-depth_scale = 0.02
-depth_deep_parallax = false
+depth_scale = 0.1
+depth_deep_parallax = true
+depth_min_layers = 8
+depth_max_layers = 32
 depth_flip_tangent = false
 depth_flip_binormal = false
 depth_texture = ExtResource( 1 )

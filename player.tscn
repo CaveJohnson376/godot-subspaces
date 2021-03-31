@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=2]
 
-[sub_resource type="PhysicsMaterial" id=3]
+[sub_resource type="PhysicsMaterial" id=1]
 friction = 0.5
 
 [sub_resource type="GDScript" id=2]
@@ -46,7 +46,7 @@ func _physics_process(delta):
 	horspeed = horspeed.linear_interpolate((rightvector * godirection.x + frontvector * godirection.y).normalized() * tarspeed, delta*2)
 	
 	cam.translation = cam.translation.linear_interpolate(campos.global_transform.origin, delta * 10)
-	cam.transform.basis = cam.transform.basis.orthonormalized().slerp(campos.global_transform.basis, delta * 5)
+	cam.transform.basis = cam.transform.basis.orthonormalized().slerp(campos.global_transform.basis.orthonormalized(), delta * 5)
 	
 	var fov = cam.fov
 	var target_fov = 80 + (40 * clamp(linear_velocity.length() / 100, 0, 1))
@@ -76,7 +76,7 @@ func _integrate_forces(state):
 	if $islanded.is_colliding():
 		state.add_central_force((Vector3(horspeed.x, 0, horspeed.y) - prevelocity) * 10)
 	elif godirection.length() > 0:
-		state.add_central_force(Vector3(horspeed.x, 5, horspeed.y)*15)
+		state.add_central_force(Vector3(horspeed.x, 0, horspeed.y)*50)
 	
 	state.add_force(Vector3(0, -50, 0), $gravity_center.global_transform.origin - global_transform.origin)
 	
@@ -91,14 +91,14 @@ func _input(event):
 	pass
 "
 
-[sub_resource type="CapsuleShape" id=1]
+[sub_resource type="CapsuleShape" id=3]
 radius = 0.5
 
 [node name="player" type="RigidBody" groups=[
 "_ignore",
 ]]
 mass = 5.0
-physics_material_override = SubResource( 3 )
+physics_material_override = SubResource( 1 )
 gravity_scale = 0.0
 continuous_cd = true
 can_sleep = false
@@ -108,7 +108,7 @@ script = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0 )
-shape = SubResource( 1 )
+shape = SubResource( 3 )
 
 [node name="islanded" type="RayCast" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )

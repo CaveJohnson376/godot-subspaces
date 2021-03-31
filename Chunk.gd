@@ -42,8 +42,8 @@ func _generateWorld():
 	var plane_mesh = PlaneMesh.new()
 	plane_mesh.size = Vector2(chunk_size, chunk_size)
 	
-	plane_mesh.subdivide_depth = chunk_size * 0.25
-	plane_mesh.subdivide_width = chunk_size * 0.25
+	plane_mesh.subdivide_depth = chunk_size * 0.125
+	plane_mesh.subdivide_width = chunk_size * 0.125
 	
 	var surface_tool = SurfaceTool.new()
 	surface_tool.create_from(plane_mesh, 0)
